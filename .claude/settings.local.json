@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cd:*)",
+      "Bash(mkdir:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(touch:*)",
+      "Bash(\"/mnt/c/Users/TengLiang(Aspen)/Desktop/AUTO/.venv/Scripts/python.exe\" -m pip list)",
+      "Bash(\"/mnt/c/Users/TengLiang(Aspen)/Desktop/AUTO/.venv/Scripts/python.exe\" -c \"import playwright.sync_api; print(''SUCCESS: playwright.sync_api imported'')\")",
+      "Bash(\"/mnt/c/Users/TengLiang(Aspen)/Desktop/AUTO/.venv/Scripts/python.exe\" -c \"import sys; print(''Python path:''); [print(p) for p in sys.path]\")",
+      "Bash(\"/mnt/c/Users/TengLiang(Aspen)/Desktop/AUTO/.venv/Scripts/python.exe\" -c \"\nimport playwright\nprint(''playwright imported successfully'')\nprint(''playwright location:'', playwright.__file__)\ntry:\n    from playwright import sync_api\n    print(''sync_api imported successfully'')\nexcept Exception as e:\n    print(''sync_api import error:'', e)\n    import traceback\n    traceback.print_exc()\n\")",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(\"/mnt/c/Users/TengLiang(Aspen)/Desktop/AUTO/.venv/Scripts/python.exe\" -c \"import playwright.sync_api; print(''SUCCESS: playwright.sync_api imported successfully'')\")",
+      "Bash(\"/mnt/c/Users/TengLiang(Aspen)/Desktop/AUTO/.venv/Scripts/python.exe\" -c \"import playwright.sync_api; import pandas; import json; print(''OK'')\")",
+      "Bash(sed:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(cd:*)",
+      "Bash(cd:*)",
+      "Bash(cd:*)",
+      "Bash(source:*)",
+      "Bash(python:*)",
+      "Bash(cd:*)",
+      "Bash(cd:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(npx tsc:*)",
+      "Bash(cd:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "WebFetch(domain:nextjs.org)",
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:dev.to)"
+    ],
+    "deny": []
+  }
+}

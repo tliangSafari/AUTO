@@ -1,0 +1,30 @@
+# Jonas Browser Automation Dependencies
+# Core browser automation
+playwright==1.48.0
+
+# Data processing and file handling
+pandas==2.2.3
+openpyxl==3.1.5
+beautifulsoup4==4.12.3
+
+# Web scraping and HTTP requests (if needed)
+requests==2.32.3
+lxml==5.3.0
+
+# Email functionality (if using SMTP)
+secure-smtplib==0.1.1
+
+# Utility libraries
+python-dateutil==2.9.0
+urllib3==2.2.3
+
+# JSON handling (usually built-in, but explicit for clarity)
+# json - built into Python standard library
+
+# Additional dependencies that might be needed
+certifi==2024.8.30
+charset-normalizer==3.4.0
+idna==3.10
+
+# Development dependencies (optional)
+# pytest==8.3.4  # Uncomment if you want to add testing

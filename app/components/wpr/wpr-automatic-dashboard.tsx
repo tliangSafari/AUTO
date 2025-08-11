@@ -1,0 +1,300 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Download,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Activity,
+  Calendar,
+  Users,
+  Settings,
+  RefreshCw,
+  FileSpreadsheet,
+  BarChart3
+} from "lucide-react"
+import type { WPRReport } from "@/app/types"
+import AutomationConfigDialog from "../shared/automation-config-dialog"
+
+// Mock automation data for WPR
+const mockWPRRuns = [
+  {
+    id: "wpr-001",
+    date: "2025-01-22 08:00:00",
+    status: "success" as const,
+    reportsGenerated: 1,
+    duration: "2m 15s",
+    reportTypes: ["Weekly Progress"],
+    downloadUrl: "/api/wpr/download?file=WPR_2025_Week_04.xlsx"
+  },
+  {
+    id: "wpr-002", 
+    date: "2025-01-15 08:00:00",
+    status: "success" as const,
+    reportsGenerated: 1,
+    duration: "1m 58s",
+    reportTypes: ["Weekly Progress"],
+    downloadUrl: "/api/wpr/download?file=WPR_2025_Week_03.xlsx"
+  },
+  {
+    id: "wpr-003",
+    date: "2025-01-08 08:00:00", 
+    status: "failed" as const,
+    reportsGenerated: 0,
+    duration: "0m 45s",
+    reportTypes: ["Weekly Progress"],
+    errorMessage: "Solar data API was temporarily unavailable"
+  },
+  {
+    id: "wpr-004",
+    date: "2025-01-01 08:00:00",
+    status: "success" as const, 
+    reportsGenerated: 1,
+    duration: "2m 32s",
+    reportTypes: ["Weekly Progress"],
+    downloadUrl: "/api/wpr/download?file=WPR_2025_Week_01.xlsx"
+  },
+  {
+    id: "wpr-005",
+    date: "2024-12-25 08:00:00",
+    status: "success" as const,
+    reportsGenerated: 1,
+    duration: "2m 18s", 
+    reportTypes: ["Weekly Progress"],
+    downloadUrl: "/api/wpr/download?file=WPR_2024_Week_52.xlsx"
+  }
+]
+
+const initialWPRConfig = {
+  schedule: "Weekly on Monday at 8:00 AM",
+  frequency: "Every 7 days",
+  reportTypes: ["Weekly Progress Report (Current Week)", "Performance Charts", "Maintenance Summary"],
+  emailRecipients: ["tliang@aspenpower.com", "team@aspenpower.com"],
+  retryPolicy: "3 attempts with 10min intervals",
+  lastRun: "2025-01-22 08:00:00",
+  nextRun: "2025-01-29 08:00:00",
+  status: "active" as const,
+  timezone: "EST (UTC-5)"
+}
+
+export default function WprAutomaticDashboard() {
+  const [wprConfig, setWprConfig] = useState(initialWPRConfig)
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false)
+
+  const handleConfigSave = (newConfig: any) => {
+    setWprConfig({ ...wprConfig, ...newConfig })
+    // In a real app, this would save to backend
+    console.log("Saving WPR automation config:", newConfig)
+  }
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "success":
+        return <CheckCircle className="h-4 w-4 text-green-600" />
+      case "failed":
+        return <AlertCircle className="h-4 w-4 text-red-600" />
+      case "in_progress":
+        return <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
+      default:
+        return <Clock className="h-4 w-4 text-gray-400" />
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, string> = {
+      success: "bg-green-100 text-green-800",
+      failed: "bg-red-100 text-red-800", 
+      in_progress: "bg-blue-100 text-blue-800"
+    }
+    return (
+      <Badge className={`${variants[status]} border-0`}>
+        {status.replace("_", " ").toUpperCase()}
+      </Badge>
+    )
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-semibold text-gray-900 mb-2">WPR Automatic Mode</h2>
+        <p className="text-lg text-gray-600">
+          Automated Weekly Progress Report generation with intelligent scheduling
+        </p>
+      </div>
+
+      {/* Automation Configuration */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Settings className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <CardTitle>Automation Configuration</CardTitle>
+                <CardDescription>Current automation settings and schedule</CardDescription>
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsConfigDialogOpen(true)}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Configure
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Calendar className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Schedule</p>
+                  <p className="text-sm text-gray-600">{wprConfig.schedule}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Frequency</p>
+                  <p className="text-sm text-gray-600">{wprConfig.frequency}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Activity className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Status</p>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={wprConfig.status === "active" ? "bg-green-100 text-green-800 border-0" : "bg-gray-100 text-gray-800 border-0"}>
+                      {wprConfig.status.toUpperCase()}
+                    </Badge>
+                    <span className="text-sm text-gray-600">({wprConfig.timezone})</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <BarChart3 className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Report Types</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {wprConfig.reportTypes.map((type, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {type.split(" ")[0]}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Users className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Email Recipients</p>
+                  <p className="text-sm text-gray-600">{wprConfig.emailRecipients.length} recipients</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <RefreshCw className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Next Run</p>
+                  <p className="text-sm text-gray-600">{new Date(wprConfig.nextRun).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Previous Runs History */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Activity className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <CardTitle>Previous WPR Generations</CardTitle>
+                <CardDescription>Recent automatic report generation history</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" size="sm">
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-3">
+              {mockWPRRuns.map((run) => (
+                <div key={run.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      {getStatusIcon(run.status)}
+                      <span className="text-sm font-medium text-gray-700">
+                        {new Date(run.date).toLocaleDateString()}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(run.date).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    {getStatusBadge(run.status)}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 text-xs text-gray-600 mb-3">
+                    <span>Reports: {run.reportsGenerated}</span>
+                    <span>Duration: {run.duration}</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {run.reportTypes.map((type, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {type}
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  {run.status === "failed" && run.errorMessage && (
+                    <div className="text-xs text-red-600 bg-red-50 p-2 rounded mb-2">
+                      {run.errorMessage}
+                    </div>
+                  )}
+                  
+                  {run.downloadUrl && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.open(run.downloadUrl, '_blank')}
+                      className="w-full"
+                    >
+                      <Download className="h-3 w-3 mr-1" />
+                      Download Report
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      <AutomationConfigDialog
+        isOpen={isConfigDialogOpen}
+        onClose={() => setIsConfigDialogOpen(false)}
+        config={wprConfig}
+        onSave={handleConfigSave}
+        title="Weekly Progress Report"
+      />
+    </div>
+  )
+}
